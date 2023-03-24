@@ -30,7 +30,7 @@ boot || goto custom_exit
 
 :option_two
 
-kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=funtoo,igz ${cmdline}
+kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=funtoo.igz ${cmdline}
 initrd http://192.168.42.9:80/Funtoo/funtoo.igz
 initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
 imgstat
