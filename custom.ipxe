@@ -1,12 +1,44 @@
 #!ipxe
-###
-### netboot.xyz-custom menu
-###
 
-:start
-echo Hello world!
-sleep 10
+# Set the github account
+set github_user celesrenata
+
+:custom
+clear custom_choice
+menu This will load ISOs directly through netboot.xyz
+item --gap LiveCDs
+item option_one ${space} Sabayon 19.03 KDE
+item option_two ${space} Funtoo 20230107
+item option_three ${space} RIP Linux 13.7
+#item --gap This is a second sub menu
+#item option_three ${space} Loads another custom sub menu
+#item option_four ${space} This is option four
+choose custom_choice || goto custom_exit
+echo ${cls}
+goto ${custom_choice}
 goto custom_exit
 
+:option_one
+kernel https://boot.netboot.xyz/memdisk iso raw
+initrd http://192.168.42.9:80/Sabayon_Linux_19.03_amd64_KDE.iso
+boot || goto custom_exit
+
+:option_two
+kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot net.ifnames=0 initrd=funtoo.igz
+initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
+initrd http://192.168.42.9:80/Funtoo/funtoo.igz funtoo.igz
+#kernel http://192.168.42.9:80/Funtoo/kernel-funtoo
+#imgargs vmlinuz boot=live config console=ttyS0 fetch=http://192.168.42.9:80/Funtoo/image.squashfs
+#kernel http://192.168.42.9:80/Funtoo/kernel-funtoo ip=dhcp root=/dev/ram0 init=/linuxrc loop=/image.squashfs looptype=squashfs cdroot=1
+#initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
+
+boot || goto custom_exit
+
+:option_three
+kernel https://boot.netboot.xyz/memdisk iso raw
+initrd http://192.168.42.9:80/RIPLinuX-13.7.iso
+boot || goto custom_exit
+
 :custom_exit
-exit 0
+chain utils.ipxe
+exit
