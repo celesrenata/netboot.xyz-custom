@@ -7,9 +7,9 @@ set github_user celesrenata
 clear custom_choice
 menu This will load ISOs directly through netboot.xyz
 item --gap LiveCDs
-item option_one ${space} Sabayon 19.03 KDE
+#item option_one ${space} Sabayon 19.03 KDE
 item option_two ${space} Funtoo 20230107
-item option_three ${space} RIP Linux 13.7
+#item option_three ${space} RIP Linux 13.7
 #item --gap This is a second sub menu
 #item option_three ${space} Loads another custom sub menu
 #item option_four ${space} This is option four
