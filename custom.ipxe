@@ -24,9 +24,9 @@ initrd http://192.168.42.9:80/Sabayon_Linux_19.03_amd64_KDE.iso
 boot || goto custom_exit
 
 :option_two
-kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot net.ifnames=0 initrd=funtoo.igz
+kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot net.ifnames=0 initrd=initrd.magic
+initrd http://192.168.42.9:80/Funtoo/funtoo.igz
 initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
-initrd http://192.168.42.9:80/Funtoo/funtoo.igz funtoo.igz
 #kernel http://192.168.42.9:80/Funtoo/kernel-funtoo
 #imgargs vmlinuz boot=live config console=ttyS0 fetch=http://192.168.42.9:80/Funtoo/image.squashfs
 #kernel http://192.168.42.9:80/Funtoo/kernel-funtoo ip=dhcp root=/dev/ram0 init=/linuxrc loop=/image.squashfs looptype=squashfs cdroot=1
