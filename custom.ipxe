@@ -18,19 +18,22 @@ echo ${cls}
 goto ${custom_choice}
 goto custom_exit
 
+# allow for external keymap setting
+isset ${keymap} || set keymap dokeymap
+# allow for external cmdline options
+isset ${cmdline} || set cmdline vga=791
+
 :option_one
 kernel https://boot.netboot.xyz/memdisk iso raw
 initrd http://192.168.42.9:80/Sabayon_Linux_19.03_amd64_KDE.iso
 boot || goto custom_exit
 
 :option_two
-kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  dokeymap looptype=squashfs loop=/image.squashfs  cdroot net.ifnames=0 initrd=initrd.magic
+
+kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=funtoo,igz ${cmdline}
 initrd http://192.168.42.9:80/Funtoo/funtoo.igz
 initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
-#kernel http://192.168.42.9:80/Funtoo/kernel-funtoo
-#imgargs vmlinuz boot=live config console=ttyS0 fetch=http://192.168.42.9:80/Funtoo/image.squashfs
-#kernel http://192.168.42.9:80/Funtoo/kernel-funtoo ip=dhcp root=/dev/ram0 init=/linuxrc loop=/image.squashfs looptype=squashfs cdroot=1
-#initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
+imgstat
 
 boot || goto custom_exit
 
