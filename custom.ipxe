@@ -7,8 +7,8 @@ set github_user celesrenata
 clear custom_choice
 menu This will load ISOs directly through netboot.xyz
 item --gap LiveCDs
-#item option_one ${space} Sabayon 19.03 KDE
-item option_two ${space} Funtoo 20230107
+item option_one ${space} Gentoo 20230328 - Primary
+item option_two ${space} Gentoo 20230328 - Secondary
 #item option_three ${space} RIP Linux 13.7
 #item --gap This is a second sub menu
 #item option_three ${space} Loads another custom sub menu
@@ -24,17 +24,14 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_one
-kernel https://boot.netboot.xyz/memdisk iso raw
-initrd http://192.168.42.9:80/Sabayon_Linux_19.03_amd64_KDE.iso
+kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/diskless/primary
+imgstat
 boot || goto custom_exit
 
 :option_two
 
-kernel http://192.168.42.9:80/Funtoo/kernel-funtoo root=/dev/ram0 init=/linuxrc  ${keymap} looptype=squashfs loop=/image.squashfs  cdroot initrd=funtoo.igz ${cmdline}
-initrd http://192.168.42.9:80/Funtoo/funtoo.igz
-initrd http://192.168.42.9:80/Funtoo/image.squashfs /image.squashfs
+kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/diskless/secondary
 imgstat
-
 boot || goto custom_exit
 
 :option_three
