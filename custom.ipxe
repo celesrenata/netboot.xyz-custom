@@ -24,13 +24,13 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_one
-kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/diskless/primary
+kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/primary
 imgstat
 boot || goto custom_exit
 
 :option_two
 
-kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/diskless/secondary
+kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/secondary
 imgstat
 boot || goto custom_exit
 
