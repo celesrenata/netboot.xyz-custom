@@ -5,7 +5,7 @@ set github_user celesrenata
 
 :custom
 clear custom_choice
-menu This will load ISOs directly through netboot.xyz
+menu This will load a custom diskless gentoo image directly through NFS
 item --gap LiveCDs
 item option_one ${space} Gentoo 20230328 - Primary
 item option_two ${space} Gentoo 20230328 - Secondary
@@ -24,13 +24,13 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_one
-kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/primary
+kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/primary,tcp
 imgstat
 boot || goto custom_exit
 
 :option_two
 
-kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/secondary
+kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
 imgstat
 boot || goto custom_exit
 
