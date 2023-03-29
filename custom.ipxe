@@ -24,9 +24,9 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_one
-kernel http://192.168.42.9:80/Gentoo/bzImage
+kernel http://192.168.42.9:80/Gentoo/vmlinuz
 initrd http://192.168.42.9:80/Gentoo/initramfs
-imgargs bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/primary,tcp
+imgargs vmlinuz ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/primary,tcp
 imgstat
 boot || goto custom_exit
 
