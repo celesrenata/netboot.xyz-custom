@@ -32,7 +32,8 @@ boot || goto custom_exit
 
 :option_two
 
-kernel http://192.168.42.9:80/Gentoo/bzImage ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
+kernel http://192.168.42.9:80/Gentoo/bzImage initrd=initramfs ip=dhcp root=/dev/nfs nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
+initrd http://192.168.42.9:80/Gentoo/initramfs
 imgstat
 boot || goto custom_exit
 
