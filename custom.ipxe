@@ -9,7 +9,7 @@ menu This will load a custom diskless gentoo image directly through NFS
 item --gap LiveCDs
 item option_one ${space} Gentoo 20230328 - Primary
 item option_two ${space} Gentoo 20230328 - Secondary
-#item option_three ${space} RIP Linux 13.7
+item option_three ${space} Gentoo - Attempt 01
 #item --gap This is a second sub menu
 #item option_three ${space} Loads another custom sub menu
 #item option_four ${space} This is option four
@@ -37,9 +37,11 @@ initrd http://192.168.42.9:80/Gentoo/initramfs
 imgstat
 boot || goto custom_exit
 
-:option_three
-kernel https://boot.netboot.xyz/memdisk iso raw
-initrd http://192.168.42.9:80/RIPLinuX-13.7.iso
+:option_thrree
+
+kernel http://192.168.42.9:80/Gentoo/vmlinuz ip=dhcp root=/dev/ram0 initrd=initramfs real_root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp 
+initrd http://192.168.42.9:80/Gentoo/initramfs
+imgstat
 boot || goto custom_exit
 
 :custom_exit
