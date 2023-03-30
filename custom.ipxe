@@ -10,6 +10,7 @@ item --gap LiveCDs
 item option_one ${space} Gentoo 20230328 - Primary
 item option_two ${space} Gentoo 20230328 - Secondary
 item option_three ${space} Gentoo - Attempt 01
+item option_four ${space} Gentoo - Attempt 02
 #item --gap This is a second sub menu
 #item option_three ${space} Loads another custom sub menu
 #item option_four ${space} This is option four
@@ -24,25 +25,33 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_one
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs
+
 initrd http://192.168.42.9:80/Gentoo/initramfs
+kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs
 imgargs vmlinuz ip=dhcp root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/primary,tcp
 imgstat
 boot || goto custom_exit
 
 :option_two
 
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs ip=dhcp root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
 initrd http://192.168.42.9:80/Gentoo/initramfs
+kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs ip=dhcp root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
 imgstat
 boot || goto custom_exit
 
 :option_three
 
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs ip=dhcp root=/dev/ram0 real_root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp 
 initrd http://192.168.42.9:80/Gentoo/initramfs
+kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs ip=dhcp root=/dev/ram0 real_root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp 
 imgstat
 #boot || goto custom_exit
+
+:option_four
+
+initrd http://192.168.42.9:80/Gentoo/combined.igz
+kernel http://192.168.42.9:80/Gentoo/vmlinuz root=/dev/ram0 init=/linuxrc  keymap=us looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz ${cmdline}
+imgstat
+boot || goto custom_exit
 
 :custom_exit
 chain utils.ipxe
