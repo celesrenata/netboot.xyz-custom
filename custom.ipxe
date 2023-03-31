@@ -50,8 +50,9 @@ boot || goto custom_exit
 
 :option_four
 
-initrd http://192.168.42.9:80/Gentoo/combined.igz
-kernel http://192.168.42.9:80/Gentoo/vmlinuz root=/dev/ram0 init=/linuxrc  keymap=us looptype=squashfs loop=/image.squashfs cdroot initrd=combined.igz ${cmdline}
+initrd http://192.168.42.9:80/Gentoo/initramfs
+kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs
+imgargs vmlinuz ip=dhcp root=/dev/nfs init=/lib/systemd/systemd nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
 imgstat
 boot || goto custom_exit
 
