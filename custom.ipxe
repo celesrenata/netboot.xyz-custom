@@ -43,9 +43,10 @@ boot || goto custom_exit
 :option_three
 
 initrd http://192.168.42.9:80/Gentoo/initramfs
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs ip=dhcp root=/dev/ram0 real_root=/dev/nfs nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp 
+kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs
+imgargs vmlinuz ip=dhcp root=/dev/ram0 real_root=/dev/nfs init=/newroot/lib/systemd/systemd nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp
 imgstat
-#boot || goto custom_exit
+boot || goto custom_exit
 
 :option_four
 
