@@ -54,7 +54,7 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz ip=dhcp root=dhcp init=/lib/systemd/systemd nfsvers=3 root-path=192.168.42.8:/volume2/diskless/secondary,tcp
+imgargs vmlinuz rd.ip=auto root=dhcp init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
