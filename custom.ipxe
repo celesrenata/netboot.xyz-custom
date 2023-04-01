@@ -23,7 +23,7 @@ isset ${cmdline} || set cmdline vga=791
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${128:string} ip=auto init=/lib/systemd/systemd rd.shell rd.break=mount rw
+imgargs vmlinuz root=${128:string} ip=auto init=/lib/systemd/systemd rd.shell rd.break=mount
 imgstat
 boot || goto custom_exit
 
