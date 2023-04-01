@@ -6,14 +6,9 @@ set github_user celesrenata
 :custom
 clear custom_choice
 menu This will load a custom diskless gentoo image directly through NFS
-item --gap LiveCDs
-item option_one ${space} Gentoo 20230328 - Primary
-item option_two ${space} Gentoo 20230328 - Secondary
-item option_three ${space} Gentoo - Attempt 01
-item option_four ${space} Gentoo - Attempt 02
-#item --gap This is a second sub menu
-#item option_three ${space} Loads another custom sub menu
-#item option_four ${space} This is option four
+item --gap Diskless Images
+item option_one ${space} Gentoo 20230328
+
 choose custom_choice || goto custom_exit
 echo ${cls}
 goto ${custom_choice}
@@ -25,32 +20,6 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_one
-
-initrd http://192.168.42.9:80/Gentoo/initramfs
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs
-imgargs vmlinuz ip=dhcp root=/dev/nfs init=/init nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/primary,tcp
-imgstat
-boot || goto custom_exit
-
-:option_two
-
-initrd http://192.168.42.9:80/Gentoo/initramfs
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs
-imgargs vmlinuz ip=dhcp root=/dev/ram0 real_root=/dev/nfs init=/lib/systemd/systemd nfsvers=3 nfsroot=192.168.42.8:/volume2/diskless/secondary,tcp,vers=3
-imgstat
-boot || goto custom_exit
-
-:option_three
-
-initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
-kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=dhcp rd.ip=auto init=/lib/systemd/systemd
-imgstat
-boot || goto custom_exit
-
-:option_four
-
-:option_three
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
