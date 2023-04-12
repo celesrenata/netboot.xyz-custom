@@ -40,16 +40,16 @@ boot || goto custom_exit
 
 :option_three
 
-initrd http://192.168.42.9:80/dentoo/initramfs-nfs
-kernel http://192.168.42.9:80/dentoo/vmlinuz initrd=initramfs-nfs
+initrd http://192.168.42.9:80/debian/initramfs-nfs
+kernel http://192.168.42.9:80/debian/vmlinuz initrd=initramfs-nfs
 imgargs vmlinuz root=${153:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
 :option_four
 
-initrd http://192.168.42.9:80/dentoo/initramfs-nfs
-kernel http://192.168.42.9:80/dentoo/vmlinuz initrd=initramfs-nfs
+initrd http://192.168.42.9:80/debian/initramfs-nfs
+kernel http://192.168.42.9:80/debian/vmlinuz initrd=initramfs-nfs
 imgargs vmlinuz root=${154:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
