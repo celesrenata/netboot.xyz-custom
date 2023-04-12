@@ -9,6 +9,8 @@ menu This will load a custom diskless gentoo image directly through NFS
 item --gap Diskless Images
 item option_one ${space} Gentoo 20230328 - NFSv3
 item option_two ${space} Gentoo 20230328 - NFSv4.1
+item option_three ${space} Debian 11 - NFSv3
+item option_four ${space} Debian 11 - NFSv4.1
 
 choose custom_choice || goto custom_exit
 echo ${cls}
@@ -24,7 +26,7 @@ isset ${cmdline} || set cmdline vga=791
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${128:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${151:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -32,9 +34,27 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${129:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${152:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
+
+:option_three
+
+initrd http://192.168.42.9:80/dentoo/initramfs-nfs
+kernel http://192.168.42.9:80/dentoo/vmlinuz initrd=initramfs-nfs
+imgargs vmlinuz root=${153:string} ip=auto init=/lib/systemd/systemd
+imgstat
+boot || goto custom_exit
+
+:option_four
+
+initrd http://192.168.42.9:80/dentoo/initramfs-nfs
+kernel http://192.168.42.9:80/dentoo/vmlinuz initrd=initramfs-nfs
+imgargs vmlinuz root=${154:string} ip=auto init=/lib/systemd/systemd
+imgstat
+boot || goto custom_exit
+
+
 
 :custom_exit
 chain utils.ipxe
