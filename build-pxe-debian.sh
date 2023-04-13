@@ -79,7 +79,6 @@ echo "Copying /etc"
 rm -rf /diskless/debian/etc
 mkdir -p /diskless/debian/etc/conf.d/
 cp -r /etc/* /diskless/debian/etc
-cp /home/celes/build-pxe-resources/fstab /diskless/debian/etc/fstab
 echo 'config_eth0="noop"' > /diskless/debian/etc/conf.d/net
 echo "Copied!"
 
