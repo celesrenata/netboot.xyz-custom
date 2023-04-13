@@ -26,7 +26,7 @@ isset ${cmdline} || set cmdline vga=791
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${151:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${128:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -34,7 +34,7 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/Gentoo/initramfs-nfs
 kernel http://192.168.42.9:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${152:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${129:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -42,7 +42,7 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/debian/initramfs-nfs
 kernel http://192.168.42.9:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${153:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${130:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -50,7 +50,7 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/debian/initramfs-nfs
 kernel http://192.168.42.9:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${154:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${131:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
