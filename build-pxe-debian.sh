@@ -9,11 +9,12 @@ if ! [ "$(whoami)" == "root" ] && [ "$ACTUAL_USER" == "root" ]; then
 fi
 echo "Run with 'kernel' as the arg to build the kernel, it will take literal hours to run."
 echo "Run with 'dracut' as the arg to build the initramfs, it will take way less time if you haven't updated your kernel."
-echo 'Run with 'cleanup' as the arg to clean up all old kernels made by this script. It will not delete the latest or the running kernels.
+echo "Run with 'cleanup' as the arg to clean up all old kernels made by this script. It will not delete the latest or the running kernels."
 read -p "This will build the new pxe image, and will take a while, press 'enter' to continue..."
 if [ "$1" == "cleanup" ]; then
   echo "cleaning up old script generated kernel directories"
-  find . -type d -name "linux-source-*-custom*" | grep -v $(uname -r | awk -F "-custom-" '{ print $2 }') | grep -v $(cat /home/celes/build-pxe-resources/LATEST) | xargs rm -rf
+  find /usr/src -type d -name "linux-source-*-custom*" | grep -v $(uname -r | awk -F "-custom-" '{ print $2 }') | grep -v $(cat /home/celes/build-pxe-resources/LATEST) | xargs -exec rm -rf {}
+  exit 0
 fi
 if [ "$1" == "kernel" ]; then
   echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
