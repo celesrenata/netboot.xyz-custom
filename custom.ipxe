@@ -42,7 +42,7 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/debian/initramfs-nfs
 kernel http://192.168.42.9:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${153:string} ip=dhcp init=/init
+imgargs vmlinuz root=${153:string} ip=dhcp init=/sbin/init
 imgstat
 boot || goto custom_exit
 
@@ -50,7 +50,7 @@ boot || goto custom_exit
 
 initrd http://192.168.42.9:80/debian/initramfs-nfs
 kernel http://192.168.42.9:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${154:string} ip=dhcp init=/init
+imgargs vmlinuz root=${154:string} ip=dhcp init=/sbin/init
 imgstat
 boot || goto custom_exit
 
