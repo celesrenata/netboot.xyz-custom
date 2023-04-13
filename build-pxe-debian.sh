@@ -12,11 +12,11 @@ read -p "This will build the new pxe image, and will take a while, press 'enter'
 if [ "$1" == "kernel" ]; then
   echo "This will take a long while..."
   echo "Building Kernel..."
-  cd $(ls -1 /usr/src/linux-source-*)
+  cd $(find /usr/src -type d -name "linux-source*" | sort | sed '$!d')
   make olddefconfig
   sed -i "s/debian\/certs\/debian-uefi-certs.pem//g" .config
   patch -u .config -i /home/celes/build-pxe-resources/debian-kernel-conf.patch -f 2>&1 > /dev/null
-  make all 2>&1 > /home/celes/build-pxe-logs/kernel-${timestamp}.log
+  make deb-pkg LOCALVERSION=-custom 2>&1 > /home/celes/build-pxe-logs/kernel-${timestamp}.log
   if ! [ $? -eq 0 ]; then
     echo "Kernel build failed!"
     echo "Check /home/celes/build-pxe-logs/kernel-${timestamp}.log"
@@ -24,8 +24,18 @@ if [ "$1" == "kernel" ]; then
   else
     echo "Kernel build succeeded!"
   fi
-  cp arch/x86/boot/bzImage /home/celes/build-pxe-resources/bzImage-${timestamp}
-  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd" /home/celes/build-pxe-resources/initramfs-nfs-${timestamp} --force
+  echo "Installing kernel"
+  dpkg -i $(find /usr/src -type f -name "linux-headers-*-custom_*" | sort | sed '$!d')
+  dpkg -i $(find /usr/src -type f -name "linux-image-*-custom_*" | sort | sed '$!d')
+  cp arch/x86_64/boot/bzImage /home/celes/build-pxe-resources/bzImage-${timestamp}
+fi
+if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
+  uname -r | grep -q "custom" > /dev/null
+  if ! [ $? -eq 0 ]; then
+    echo "You are not running the current kernel! you will need to reboot and rerun the script as 'sudo ./build-pxe-debian.sh dracut'"
+    exit 1
+  fi
+  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd" /home/celes/build-pxe-resources/initramfs-nfs-${timestamp} --kernel-image=$(find /boot -type f -name "vmlinuz-*-custom" | sort | sed '$!d') --force
   if ! [ $? -eq 0 ]; then
     echo "Building custom initramfs failed!"
     exit 1
@@ -68,7 +78,6 @@ echo "Copying /etc"
 rm -rf /diskless/debian/etc
 mkdir -p /diskless/debian/etc/conf.d/
 cp -r /etc/* /diskless/debian/etc
-cp /home/celes/build-pxe-resources/initramfs.mounts /diskless/debian/etc/
 cp /home/celes/build-pxe-resources/fstab /diskless/debian/etc/fstab
 echo 'config_eth0="noop"' > /diskless/debian/etc/conf.d/net
 echo "Copied!"
@@ -123,6 +132,3 @@ echo "Unmounting NFS shares"
 umount /mnt/pxe
 umount /mnt/diskless
 echo "Done!"
-
-
-
