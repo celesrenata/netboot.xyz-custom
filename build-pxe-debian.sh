@@ -7,6 +7,7 @@ if ! [ "$(whoami)" == "root" ]; then
   exit 1
 fi
 echo "Run with 'kernel' as the arg to build the kernel, it will take literal hours to run."
+echo "Run with 'dracut' as the arg to build the initramfs, it will take way less time if you haven't updated your kernel."
 read -p "This will build the new pxe image, and will take a while, press 'enter' to continue..."
 
 if [ "$1" == "kernel" ]; then
