@@ -3,7 +3,6 @@ ACTUAL_USER=$(logname)
 mkdir -p build-pxe-logs
 mkdir -p build-pxe-resources
 timestamp=$(date '+%Y%m%d-%H%M%S')
-echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
 if ! [ "$(whoami)" == "root" ] && [ "$ACTUAL_USER" == "root" ]; then
   echo "please run script with sudo, only!"
   exit 1
@@ -13,6 +12,7 @@ echo "Run with 'dracut' as the arg to build the initramfs, it will take way less
 read -p "This will build the new pxe image, and will take a while, press 'enter' to continue..."
 
 if [ "$1" == "kernel" ]; then
+  echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
   echo "This will take a long while..."
   echo "Building Kernel..."
   rm -rf /usr/src/*.tar.gz
@@ -21,7 +21,7 @@ if [ "$1" == "kernel" ]; then
   mv ${kernelver} ${kernelver}-custom-${timestamp}
   cd $(find /usr/src -type d -name "linux-source*" | sort | sed '$!d')
   make olddefconfig
-  sed 's/DRACUT-TIMESTAMP/-custom-${timestamp}/g' /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch > /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch
+  sed "s/DRACUT-TIMESTAMP/-custom-${timestamp}/g" /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch > /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch
   patch -u .config -i /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch -f 2>&1 > /dev/null
   make -j$(nproc) deb-pkg 2>&1 > /home/$ACTUAL_USER/build-pxe-logs/kernel-${timestamp}.log
   if ! [ $? -eq 0 ]; then
