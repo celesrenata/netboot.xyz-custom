@@ -21,9 +21,8 @@ if [ "$1" == "kernel" ]; then
   mv ${kernelver} ${kernelver}-custom-${timestamp}
   cd $(find /usr/src -type d -name "linux-source*" | sort | sed '$!d')
   make olddefconfig
-  sed -i "s/debian\/certs\/debian-uefi-certs.pem//g" .config
-  patch -u .config -i /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch -f 2>&1 > /dev/null
-  sed -i "s/-custom//g" .config
+  sed 's/DRACUT-TIMESTAMP/-custom-${timestamp}/g' /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch > /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch
+  patch -u .config -i /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch -f 2>&1 > /dev/null
   make -j$(nproc) deb-pkg 2>&1 > /home/$ACTUAL_USER/build-pxe-logs/kernel-${timestamp}.log
   if ! [ $? -eq 0 ]; then
     echo "Kernel build failed!"
