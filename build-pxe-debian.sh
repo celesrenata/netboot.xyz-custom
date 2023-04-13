@@ -36,7 +36,7 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
     echo "You are not running the current kernel! you will need to reboot and rerun the script as 'sudo ./build-pxe-debian.sh dracut'"
     exit 1
   fi
-  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd" /home/celes/build-pxe-resources/initramfs-nfs-${timestamp} --kernel-image=$(find /boot -type f -name "vmlinuz-*-custom" | sort | sed '$!d') --force
+  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd" /home/celes/build-pxe-resources/initramfs-nfs-${timestamp} --kver=$(uname -r) --force
   if ! [ $? -eq 0 ]; then
     echo "Building custom initramfs failed!"
     exit 1
