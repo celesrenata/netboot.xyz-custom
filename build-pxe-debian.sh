@@ -42,6 +42,7 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
     exit 1
   else
     echo "Building custom initramfs succeeded!"
+    chmod +rw /home/celes/build-pxe-resources/initramfs-nfs-${timestamp}
   fi
 fi
 echo "Purging old /diskless/debian/(bin/sbin/lib/usr/home) Folders"
