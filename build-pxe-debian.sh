@@ -15,6 +15,7 @@ if [ "$1" == "kernel" ]; then
   cd $(ls -1 /usr/src/linux-source-*)
   make olddefconfig
   sed -i "s/debian\/certs\/debian-uefi-certs.pem//g" .config
+  patch -u .config -i /home/celes/build-pxe-resources/debian-kernel-conf.patch -f 2>&1 > /dev/null
   make all 2>&1 > /home/$USER/build-pxe-logs/kernel-${timestamp}.log
   if ! [ $? -eq 0 ]; then
     echo "Kernel build failed!"
