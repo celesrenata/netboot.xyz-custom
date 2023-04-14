@@ -23,7 +23,7 @@ if [ "$1" == "kernel" ]; then
   rm -rf /usr/src/*.tar.gz
   kernelver=$(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d' | sed 's/\.tar\.xz//')
   tar xavf $(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d') --directory /usr/src
-  mv ${kernelver} ${kernelver}-custom-${timestamp}
+  mv "${kernelver}" "${kernelver}-custom-${timestamp}"
   cd $(find /usr/src -type d -name "linux-source*" | sort | sed '$!d')
   make olddefconfig
   sed "s/DRACUT-TIMESTAMP/-custom-${timestamp}/g" /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch > /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch
@@ -38,15 +38,15 @@ if [ "$1" == "kernel" ]; then
   fi
   echo "Installing kernel"
   dpkg -i $(find /usr/src -type f -name "linux-headers-*-custom-*" | grep ${timestamp})
-  dpkg -i $(find /usr/src -type f -name "linux-image-*-custom-*" | grep $timestamp})
+  dpkg -i $(find /usr/src -type f -name "linux-image-*-custom-*" | grep ${timestamp})
   cp arch/x86_64/boot/bzImage /home/$ACTUAL_USER/build-pxe-resources/bzImage-${timestamp}
 fi
 if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
   if ! [ "$(cat /home/$ACTUAL_USER/build-pxe-resources/LATEST)" == "${timestamp}" ]; then
-    echo "recovering latest timestamp=${timestamp}"
     timestamp=$(cat /home/$ACTUAL_USER/build-pxe-resources/LATEST)
+    echo "recovering latest timestamp=${timestamp}"
   fi
-  uname -r | grep -q "custom-${timestamp}" > /dev/null
+  uname -r | grep -q ${timestamp} > /dev/null
   if ! [ $? -eq 0 ]; then
     echo "You are not running the current kernel! you will need to reboot and rerun the script as 'sudo ./build-pxe-debian.sh dracut'"
     exit 1
