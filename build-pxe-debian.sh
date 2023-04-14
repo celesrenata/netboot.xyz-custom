@@ -93,11 +93,15 @@ else
   echo "Cloned!"
 fi
 
+echo "Pruning annoying services"
+systemctl disable ModemManager
+
 echo "Copying /etc"
 rm -rf /diskless/debian/etc
 mkdir -p /diskless/debian/etc/conf.d/
 cp -r /etc/* /diskless/debian/etc
 echo 'config_eth0="noop"' > /diskless/debian/etc/conf.d/net
+cp /home/$ACTUAL_USER/build-pxe-resources/fstab /diskless/debian/etc/
 echo "Copied!"
 
 echo "Mounting NFS shares"
