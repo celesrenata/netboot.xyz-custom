@@ -23,11 +23,13 @@ if [ "$1" == "kernel" ]; then
   rm -rf /usr/src/*.tar.gz
   kernelver=$(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d' | sed 's/\.tar\.xz//')
   tar xavf $(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d') --directory /usr/src
+  rm -rf "${kernelver}-custom-${timestamp}"
   mv "${kernelver}" "${kernelver}-custom-${timestamp}"
-  cd $(find /usr/src -type d -name "linux-source*" | sort | sed '$!d')
+  cd $(find /usr/src -type d -name "linux-source*" | grep ${timestamp})
   make olddefconfig
-  sed "s/DRACUT-TIMESTAMP/-custom-${timestamp}/g" /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch > /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch
-  patch -u .config -i /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf-${timestamp}.patch -f 2>&1 > /dev/null
+  sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"-custom-${timestamp}\"/" .config
+  sed -i "s/CONFIG_BUILD_SALT=.*/CONFIG_BUILD_SALT=\"-custom-${timestamp}\"/" .config
+  patch -u .config -i /home/$ACTUAL_USER/build-pxe-resources/debian-kernel-conf.patch -f 2>&1 > /dev/null
   make -j$(nproc) deb-pkg 2>&1 > /home/$ACTUAL_USER/build-pxe-logs/kernel-${timestamp}.log
   if ! [ $? -eq 0 ]; then
     echo "Kernel build failed!"
