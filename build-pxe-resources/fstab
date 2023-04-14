@@ -1,0 +1,2 @@
+# these entries are essential
+192.168.42.8:/diskless/debian	/	nfs4	vers=4.1,rw,bg,async,fsc,hard,nolock,rsize=32768,wsize=32768,timeo=600	0 0
