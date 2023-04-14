@@ -37,8 +37,8 @@ if [ "$1" == "kernel" ]; then
     echo "Kernel build succeeded!"
   fi
   echo "Installing kernel"
-  dpkg -i $(find /usr/src -type f -name "linux-headers-*-custom-${timestamp}_*")
-  dpkg -i $(find /usr/src -type f -name "linux-image-*-custom-${timestamp}_*")
+  dpkg -i $(find /usr/src -type f -name "linux-headers-*-custom-*" | grep ${timestamp})
+  dpkg -i $(find /usr/src -type f -name "linux-image-*-custom-*" | grep $timestamp})
   cp arch/x86_64/boot/bzImage /home/$ACTUAL_USER/build-pxe-resources/bzImage-${timestamp}
 fi
 if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
@@ -51,7 +51,7 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
     echo "You are not running the current kernel! you will need to reboot and rerun the script as 'sudo ./build-pxe-debian.sh dracut'"
     exit 1
   fi
-  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd kernel-modules kernel-modules-extra kernel-network-modules" /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp} --kver=$(uname -r) --force
+  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd kernel-modules kernel-modules-extra kernel-network-modules" /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp} --force
   if ! [ $? -eq 0 ]; then
     echo "Building custom initramfs failed!"
     exit 1
