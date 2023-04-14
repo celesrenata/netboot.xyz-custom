@@ -130,8 +130,8 @@ else
 fi
 
 echo "Copying kernel and initramfs"
-rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/bzImage-* -1 | sed '$!d') /mnt/pxe/assets/debian/vmlinuz 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
-rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-* -1 | sed '$!d') /mnt/pxe/assets/debian/initramfs-nfs 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
+rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/bzImage-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/vmlinuz 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
+rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/initramfs-nfs 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
 chmod +r /mnt/pxe/assets/debian/vmlinuz
 chmod +r /mnt/pxe/assets/debian/initramfs-nfs
 if ! [ $? -eq 0 ]; then
