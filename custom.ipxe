@@ -5,7 +5,7 @@ set github_user celesrenata
 
 :custom
 clear custom_choice
-menu This will load a custom diskless gentoo image directly through NFS
+menu This will load a custom diskless Gentoo and Debian images directly through NFS
 item --gap Diskless Images
 item option_one ${space} Gentoo 20230328 - NFSv3
 item option_two ${space} Gentoo 20230328 - NFSv4.1
