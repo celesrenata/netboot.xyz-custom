@@ -66,7 +66,7 @@ rm -rf /diskless/gentoo/etc
 mkdir -p /diskless/gentoo/etc/conf.d/
 cp -r /etc/* /diskless/gentoo/etc
 cp /home/celes/build-pxe-resources/initramfs.mounts /diskless/gentoo/etc/
-cp /home/celes/build-pxe-resources/fstab /diskless/gentoo/etc/fstab
+cp /home/celes/build-pxe-resources/fstab-gentoo /diskless/gentoo/etc/fstab
 echo 'config_eth0="noop"' > /diskless/gentoo/etc/conf.d/net
 echo "Copied!"
 
