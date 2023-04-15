@@ -1,14 +1,11 @@
 ## netboot.xyz-custom
 
-Fork me!  This repo will allow you to create custom menus within netboot.xyz.
-It works by using your github user name that you input and chains to this URL:
-
-    https://raw.githubusercontent.com/${github_user}/netboot.xyz-custom/master/custom.ipxe
-
-Once forked, you can edit the menu as much as you want.  You can compile the iPXE image to
-set the `github_user` name early on so that your Github user name is set ahead of time and
-will automatically display your custom submenu on boot.  You can also set your Github user
-name from the Utilities menu (**Tools:** -> **Utilities** -> **netboot.xyz tools:**) which
-will cause a custom menu to appear in the main menu.
-
-If you are new to iPXE scripting, take a look at `custom.ipxe.example` and build up from that.
+Please visit my other repository https://github.com/celesrenata/pfsense-ultimate-config for information on how to setup the DHCP options for NFS
+Run the build script in the following order for debian
+```sudo ./build-pxe-debian.sh kernel```
+```Reboot```
+```sudo ./build-pxe-debian.sh dracut```
+It also has tasks for uploading just /etc
+    * ```sudo ./build-pxe-debian.sh etc-update```
+Or just cloning over all new files in case you struggle with updates or break it
+    * ```sudo ./build-pxe-debian.sh```
