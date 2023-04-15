@@ -9,6 +9,7 @@ if ! [ "$(whoami)" == "root" ] && [ "$ACTUAL_USER" == "root" ]; then
 fi
 echo "Run with 'kernel' as the arg to build the kernel, it will take literal hours to run."
 echo "Run with 'dracut' as the arg to build the initramfs, it will take way less time if you haven't updated your kernel."
+echo "Run with 'etc-update' as the arg to quickly flash update your etc settings if they're broken."
 echo "Run with 'cleanup' as the arg to clean up all old kernels made by this script. It will not delete the latest or the running kernels."
 read -p "This will build the new pxe image, and will take a while, press 'enter' to continue..."
 if [ "$1" == "cleanup" ]; then
@@ -62,28 +63,29 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
     chmod +rw /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp}
   fi
 fi
-echo "Purging old /diskless/debian/(bin/sbin/lib/usr/home) Folders"
-rm -rf /diskless/debian/{bin,sbin,lib,usr,home,var,lib64} 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-if ! [ $? -eq 0 ]; then
-  echo "deleting old bin/sbin/lib directories has failed!"
-  echo "Check /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log"
-  exit 1
-else
-  echo "Purged!"
+if ! [ "$1" == "etc-update" ];then
+  echo "Purging old /diskless/debian/(bin/sbin/lib/usr/home) Folders"
+  rm -rf /diskless/debian/{bin,sbin,lib,usr,home,var,lib64} 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  if ! [ $? -eq 0 ]; then
+    echo "deleting old bin/sbin/lib directories has failed!"
+    echo "Check /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log"
+    exit 1
+  else
+    echo "Purged!"
+  fi
+  echo "Cloning new bin/sbin/lib/usr/home/var/lib64 folders"
+  mkdir -p /diskless/debian/{dev,proc,tmp,mnt,root,sys,opt}
+  mkdir -p /diskless/debian/mnt/.initd
+  chmod a+w /diskless/debian/tmp
+  mknod /diskless/debian/dev/console c 5 1
+  rsync -avz --delete /bin /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete /sbin /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete /lib /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete /usr /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete /home /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete /var /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete /lib64 /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
 fi
-echo "Cloning new bin/sbin/lib/usr/home/var/lib64 folders"
-mkdir -p /diskless/debian/{dev,proc,tmp,mnt,root,sys,opt}
-mkdir -p /diskless/debian/mnt/.initd
-chmod a+w /diskless/debian/tmp
-mknod /diskless/debian/dev/console c 5 1
-rsync -avz --delete /bin /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-rsync -avz --delete /sbin /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-rsync -avz --delete /lib /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-rsync -avz --delete /usr /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-rsync -avz --delete /home /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-rsync -avz --delete /var /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-rsync -avz --delete /lib64 /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-
 
 if ! [ $? -eq 0 ]; then
   echo "Cloning new bin/sbin/lib/usr/home folders has failed!"
@@ -93,8 +95,17 @@ else
   echo "Cloned!"
 fi
 
-echo "Pruning annoying services"
+echo "Fixing annoying services"
 systemctl disable ModemManager
+systemctl add-wants multi-user.target rpcbind.service
+systemctl enable getty@tty1.service
+systemctl enable getty@tty2.service
+rm -rf /diskless/debian/home/$ACTUAL_USER/.cache
+rm -rf /diskless/debian/home/$ACTUAL_USER/.config
+rm -rf /diskless/debian/home/$ACTUAL_USER/.gtkrc-2.0
+rm -rf /diskless/debian/home/$ACTUAL_USER/.kde
+rm -rf /diskless/debian/home/$ACTUAL_USER/.local
+rm -rf /diskless/debian/home/$ACTUAL_USER/.Xauthority
 
 echo "Copying /etc"
 rm -rf /diskless/debian/etc
@@ -123,29 +134,39 @@ else
   echo "Mounted /pxe !"
 fi
 
-echo "Copying directory structure"
-rsync -avz --delete /diskless/debian/* /mnt/diskless/debian/ 2>&1 > /home/$ACTUAL_USER/build-pxe-logs/structure-${timestamp}.log
-if ! [ $? -eq 0 ]; then
-  echo "Copying structure failed!"
-  echo "Check /home/$ACTUAL_USER/build-pxe-logs/structure-${timestamp}.log"
-  exit 1
-else
-  echo "Copied!"
+if ! [ "$1" == "etc-update" ];then
+  echo "Copying directory structure"
+  rsync -avz --delete /diskless/debian/* /mnt/diskless/debian/ 2>&1 > /home/$ACTUAL_USER/build-pxe-logs/structure-${timestamp}.log
+  if ! [ $? -eq 0 ]; then
+    echo "Copying structure failed!"
+    echo "Check /home/$ACTUAL_USER/build-pxe-logs/structure-${timestamp}.log"
+    exit 1
+  else
+    echo "Copied!"
+  fi
+
+  echo "Copying kernel and initramfs"
+  rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/bzImage-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/vmlinuz 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
+  rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/initramfs-nfs 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
+  chmod +r /mnt/pxe/assets/debian/vmlinuz
+  chmod +r /mnt/pxe/assets/debian/initramfs-nfs
+  if ! [ $? -eq 0 ]; then
+    echo "Copying failed!"
+    echo "Check /home/$ACTUAL_USER/build-pxe-logs/kernel-${timestamp}.log"
+    exit 1
+  else
+    echo "Copied!"
+  fi
 fi
 
-echo "Copying kernel and initramfs"
-rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/bzImage-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/vmlinuz 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
-rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/initramfs-nfs 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
-chmod +r /mnt/pxe/assets/debian/vmlinuz
-chmod +r /mnt/pxe/assets/debian/initramfs-nfs
-if ! [ $? -eq 0 ]; then
-  echo "Copying failed!"
-  echo "Check /home/$ACTUAL_USER/build-pxe-logs/kernel-${timestamp}.log"
-  exit 1
-else
-  echo "Copied!"
+if [ "$1" == "etc-update" ];then
+  echo "Copying over JUST /etc"
+  rsync -avz --delete /diskless/debian/etc/* /mnt/diskless/debian/etc/
 fi
 
+echo "Fixing NFSRoot permissions"
+chmod +x /mnt/diskless
+echo "If you cannot see your screen and cannot login as anything other than root, please run chmod +x / from the instance when it is running"
 echo "Unmounting NFS shares"
 umount /mnt/pxe
 umount /mnt/diskless
