@@ -100,12 +100,6 @@ systemctl disable ModemManager
 systemctl add-wants multi-user.target rpcbind.service
 systemctl enable getty@tty1.service
 systemctl enable getty@tty2.service
-rm -rf /diskless/debian/home/$ACTUAL_USER/.cache
-rm -rf /diskless/debian/home/$ACTUAL_USER/.config
-rm -rf /diskless/debian/home/$ACTUAL_USER/.gtkrc-2.0
-rm -rf /diskless/debian/home/$ACTUAL_USER/.kde
-rm -rf /diskless/debian/home/$ACTUAL_USER/.local
-rm -rf /diskless/debian/home/$ACTUAL_USER/.Xauthority
 
 echo "Copying /etc"
 rm -rf /diskless/debian/etc
