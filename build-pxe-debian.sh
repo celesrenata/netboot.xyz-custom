@@ -22,13 +22,15 @@ if [ "$1" == "kernel" ] || [ "$1" == "update" ]; then
   echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
   echo "This will take a long while..."
   echo "Building Kernel..."
-  kernelverfull=$(apt-get install linux-source 2>&1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+' | tail -n 1)
+  apt-get install build-essential fakeroot module-assistant -y
+  kernelverfull=$(apt-get install linux-source -y 2>&1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+' | head -n 1)
+  kernelversemi=$(echo ${kernelverfull} | awk -F '-' '{ print $1 }')
   rm -rf /usr/src/*.tar.gz
   kernelver=$(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d' | sed 's/\.tar\.xz//')
   tar xavf $(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d') --directory /usr/src
   rm -rf "${kernelver}-custom-${timestamp}"
-  mv "${kernelver}" "${kernelverfull}-custom-${timestamp}"
-  cd $(find /usr/src -type d -name "linux-source*" | grep ${timestamp})
+  mv "${kernelver}" "/usr/src/${kernelversemi}-custom-${timestamp}"
+  cd $(find /usr/src -type d -name "*${timestamp}*")
   make olddefconfig
   sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"-custom-${timestamp}\"/" .config
   sed -i "s/CONFIG_BUILD_SALT=.*/CONFIG_BUILD_SALT=\"-custom-${timestamp}\"/" .config
@@ -53,11 +55,7 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ] || [ "$1" == "update" ]; then
     echo "recovering latest timestamp=${timestamp}"
   fi
   uname -r | grep -q ${timestamp} > /dev/null
-  if ! [ $? -eq 0 ] && ! [ "$1" == "update" ]; then
-    echo "You are not running the current kernel! you will need to reboot and rerun the script as 'sudo ./build-pxe-debian.sh dracut'"
-    exit 1
-  fi
-  dracut -m "nfs base dracut-systemd systemd-networkd systemd-initrd kernel-modules kernel-modules-extra kernel-network-modules" /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp} --force
+  dracut --kver "${kernelversemi}-custom-${timestamp}" -m "nfs base dracut-systemd systemd-networkd systemd-initrd kernel-modules kernel-modules-extra kernel-network-modules" /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp} --force
   if ! [ $? -eq 0 ]; then
     echo "Building custom initramfs failed!"
     exit 1
