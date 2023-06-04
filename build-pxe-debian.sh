@@ -108,7 +108,7 @@ if ! [ "$1" == "update" ]; then
   mkdir -p /diskless/debian/etc/conf.d/
   cp -r /etc/* /diskless/debian/etc
   echo 'config_eth0="noop"' > /diskless/debian/etc/conf.d/net
-  cp /home/$ACTUAL_USER/build-pxe-resources/fstab-debian /diskless/debian/etc/
+  cp /home/$ACTUAL_USER/build-pxe-resources/fstab-debian /diskless/debian/etc/fstab
   echo "Copied!"
 fi
 
