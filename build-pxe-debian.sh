@@ -11,13 +11,14 @@ echo "Run with 'kernel' as the arg to build the kernel, it will take literal hou
 echo "Run with 'dracut' as the arg to build the initramfs, it will take way less time if you haven't updated your kernel."
 echo "Run with 'etc-update' as the arg to quickly flash update your etc settings if they're broken."
 echo "Run with 'cleanup' as the arg to clean up all old kernels made by this script. It will not delete the latest or the running kernels."
+echo "Run with 'update' as the arg to update the kernel and initramfs after you successfully ran apt-get update && apt-get upgrade."
 read -p "This will build the new pxe image, and will take a while, press 'enter' to continue..."
 if [ "$1" == "cleanup" ]; then
   echo "cleaning up old script generated kernel directories"
   find /usr/src -type d -name "linux-source-*-custom*" | grep -v $(uname -r | awk -F "-custom-" '{ print $2 }') | grep -v $(cat /home/celes/build-pxe-resources/LATEST) | xargs -exec rm -rf {}
   exit 0
 fi
-if [ "$1" == "kernel" ]; then
+if [ "$1" == "kernel" ] || [ "$1" == "update" ]; then
   echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
   echo "This will take a long while..."
   echo "Building Kernel..."
@@ -44,13 +45,14 @@ if [ "$1" == "kernel" ]; then
   dpkg -i $(find /usr/src -type f -name "linux-image-*-custom-*" | grep ${timestamp})
   cp arch/x86_64/boot/bzImage /home/$ACTUAL_USER/build-pxe-resources/bzImage-${timestamp}
 fi
-if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
+if [ "$1" == "kernel" ] || [ "$1" == "dracut" ] || [ "$1" == "update" ]; then
+  modprobe squashfs
   if ! [ "$(cat /home/$ACTUAL_USER/build-pxe-resources/LATEST)" == "${timestamp}" ]; then
     timestamp=$(cat /home/$ACTUAL_USER/build-pxe-resources/LATEST)
     echo "recovering latest timestamp=${timestamp}"
   fi
   uname -r | grep -q ${timestamp} > /dev/null
-  if ! [ $? -eq 0 ]; then
+  if ! [ $? -eq 0 ] && ! [ "$1" == "update" ]; then
     echo "You are not running the current kernel! you will need to reboot and rerun the script as 'sudo ./build-pxe-debian.sh dracut'"
     exit 1
   fi
@@ -63,7 +65,7 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ]; then
     chmod +rw /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp}
   fi
 fi
-if ! [ "$1" == "etc-update" ];then
+if ! [ "$1" == "etc-update" ] && ! [ "$1" == "update" ]; then
   echo "Purging old /diskless/debian/(bin/sbin/lib/usr/home) Folders"
   rm -rf /diskless/debian/{bin,sbin,lib,usr,home,var,lib64} 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
   if ! [ $? -eq 0 ]; then
@@ -87,7 +89,7 @@ if ! [ "$1" == "etc-update" ];then
   rsync -avz --delete /lib64 /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
 fi
 
-if ! [ $? -eq 0 ]; then
+if ! [ $? -eq 0 ] && ! [ "$1" == "update" ]; then
   echo "Cloning new bin/sbin/lib/usr/home folders has failed!"
   echo "Check /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log"
   exit 1
@@ -95,40 +97,45 @@ else
   echo "Cloned!"
 fi
 
-echo "Fixing annoying services"
-systemctl disable ModemManager
-systemctl add-wants multi-user.target rpcbind.service
-systemctl enable getty@tty1.service
-systemctl enable getty@tty2.service
+if ! [ "$1" == "update" ]; then
+  echo "Fixing annoying services"
+  systemctl disable ModemManager
+  systemctl add-wants multi-user.target rpcbind.service
+  systemctl enable getty@tty1.service
+  systemctl enable getty@tty2.service
 
-echo "Copying /etc"
-rm -rf /diskless/debian/etc
-mkdir -p /diskless/debian/etc/conf.d/
-cp -r /etc/* /diskless/debian/etc
-echo 'config_eth0="noop"' > /diskless/debian/etc/conf.d/net
-cp /home/$ACTUAL_USER/build-pxe-resources/fstab-debian /diskless/debian/etc/
-echo "Copied!"
+  echo "Copying /etc"
+  rm -rf /diskless/debian/etc
+  mkdir -p /diskless/debian/etc/conf.d/
+  cp -r /etc/* /diskless/debian/etc
+  echo 'config_eth0="noop"' > /diskless/debian/etc/conf.d/net
+  cp /home/$ACTUAL_USER/build-pxe-resources/fstab-debian /diskless/debian/etc/
+  echo "Copied!"
+fi
 
 echo "Mounting NFS shares"
 mkdir -p /mnt/{diskless,pxe}
-mount -t nfs 192.168.42.8:/volume2/diskless /mnt/diskless 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log
-if ! [ $? -eq 0 ]; then
-  echo "Mounting /diskless failed!"
-  echo "Check /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log"
-  exit 1
-else
-  echo "Mounted /diskless !"
-fi
-mount -t nfs 192.168.42.8:/volume2/pxe /mnt/pxe 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log
-if ! [ $? -eq 0 ]; then
-  echo "Mounting /pxe failed!"
-  echo "Check /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log"
-  exit 1
-else
-  echo "Mounted /pxe !"
+if ! [ "$1" == "update" ]; then
+  mount -t nfs 192.168.42.8:/volume2/diskless /mnt/diskless 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log
+  if ! [ $? -eq 0 ]; then
+    echo "Mounting /mnt/diskless failed!"
+    echo "Check /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log"
+    exit 1
+  else
+    echo "Mounted /mnt/diskless !"
+  fi
 fi
 
-if ! [ "$1" == "etc-update" ];then
+mount -t nfs 192.168.42.8:/volume2/pxe /mnt/pxe 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log
+if ! [ $? -eq 0 ]; then
+  echo "Mounting /mnt/pxe failed!"
+  echo "Check /home/$ACTUAL_USER/build-pxe-logs/mount-${timestamp}.log"
+  exit 1
+else
+  echo "Mounted /mnt/pxe !"
+fi
+
+if ! [ "$1" == "etc-update" ] && ! [ "$1" == "update" ]; then
   echo "Copying directory structure"
   rsync -avz --delete /diskless/debian/* /mnt/diskless/debian/ 2>&1 > /home/$ACTUAL_USER/build-pxe-logs/structure-${timestamp}.log
   if ! [ $? -eq 0 ]; then
@@ -138,7 +145,9 @@ if ! [ "$1" == "etc-update" ];then
   else
     echo "Copied!"
   fi
+fi
 
+if ! [ "$1" == "etc-update" ]; then
   echo "Copying kernel and initramfs"
   rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/bzImage-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/vmlinuz 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
   rsync -avz $(ls /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-* -1 | grep "${timestamp}") /mnt/pxe/assets/debian/initramfs-nfs 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/kernelcopy-${timestamp}.log
@@ -153,15 +162,18 @@ if ! [ "$1" == "etc-update" ];then
   fi
 fi
 
-if [ "$1" == "etc-update" ];then
+if [ "$1" == "etc-update" ]; then
   echo "Copying over JUST /etc"
   rsync -avz --delete /diskless/debian/etc/* /mnt/diskless/debian/etc/
 fi
 
 echo "Fixing NFSRoot permissions"
 chmod +x /mnt/diskless
-echo "If you cannot see your screen and cannot login as anything other than root, please run chmod +x / from the instance when it is running"
+echo "If you cannot see your screen and cannot login as anything other than root, please run chmod +x / from the instance when it is running from root"
+
 echo "Unmounting NFS shares"
 umount /mnt/pxe
-umount /mnt/diskless
+if ! [ "$1" == "update" ]; then
+  umount /mnt/diskless
+fi
 echo "Done!"
