@@ -22,11 +22,12 @@ if [ "$1" == "kernel" ] || [ "$1" == "update" ]; then
   echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
   echo "This will take a long while..."
   echo "Building Kernel..."
+  kernelverfull=$(apt-get install linux-source 2>&1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+' | tail -n 1)
   rm -rf /usr/src/*.tar.gz
   kernelver=$(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d' | sed 's/\.tar\.xz//')
   tar xavf $(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d') --directory /usr/src
   rm -rf "${kernelver}-custom-${timestamp}"
-  mv "${kernelver}" "${kernelver}-custom-${timestamp}"
+  mv "${kernelver}" "${kernelverfull}-custom-${timestamp}"
   cd $(find /usr/src -type d -name "linux-source*" | grep ${timestamp})
   make olddefconfig
   sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"-custom-${timestamp}\"/" .config
