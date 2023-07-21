@@ -26,7 +26,7 @@ isset ${cmdline} || set cmdline vga=791
 
 initrd http://${next-server}:80/Gentoo/initramfs-nfs
 kernel http://${next-server}:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${128:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz nfsroot=${128:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -34,7 +34,7 @@ boot || goto custom_exit
 
 initrd http://${next-server}:80/Gentoo/initramfs-nfs
 kernel http://${next-server}:80/Gentoo/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${129:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz nfsroot=${129:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -42,7 +42,7 @@ boot || goto custom_exit
 
 initrd http://${next-server}:80/debian/initramfs-nfs
 kernel http://${next-server}:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${130:string} ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz nfsroot=${130:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
