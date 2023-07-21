@@ -42,7 +42,7 @@ boot || goto custom_exit
 
 initrd http://${next-server}:80/debian/initramfs-nfs
 kernel http://${next-server}:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${130:string} rd.ip=auto init=/lib/systemd/systemd
+imgargs vmlinuz root=${130:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
@@ -50,7 +50,7 @@ boot || goto custom_exit
 
 initrd http://${next-server}:80/debian/initramfs-nfs
 kernel http://${next-server}:80/debian/vmlinuz initrd=initramfs-nfs
-imgargs vmlinuz root=${131:string} root=dhcp init=/lib/systemd/systemd
+imgargs vmlinuz root=${131:string} ip=auto init=/lib/systemd/systemd
 imgstat
 boot || goto custom_exit
 
