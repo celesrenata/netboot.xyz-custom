@@ -13,6 +13,7 @@ echo "Run with 'etc-update' as the arg to quickly flash update your etc settings
 echo "Run with 'cleanup' as the arg to clean up all old kernels made by this script. It will not delete the latest or the running kernels."
 echo "Run with 'update' as the arg to update the kernel and initramfs after you successfully ran apt-get update && apt-get upgrade."
 read -p "This will build the new pxe image, and will take a while, press 'enter' to continue..."
+
 if [ "$1" == "cleanup" ]; then
   echo "cleaning up old script generated kernel directories"
   find /usr/src -type d -name "linux-source-*-custom*" | grep -v $(uname -r | awk -F "-custom-" '{ print $2 }') | grep -v $(cat /home/celes/build-pxe-resources/LATEST) | xargs -exec rm -rf {}
@@ -22,9 +23,9 @@ if [ "$1" == "kernel" ] || [ "$1" == "update" ]; then
   echo "${timestamp}" > /home/$ACTUAL_USER/build-pxe-resources/LATEST
   echo "This will take a long while..."
   echo "Building Kernel..."
-  apt-get install build-essential fakeroot module-assistant -y
+  apt install vim bc bison build-essential cpio dracut dracut-network dwarves fakeroot flex libncurses5-dev libelf-dev libssl-dev linux-source module-assistant -y
   kernelverfull=$(apt-get install linux-source -y 2>&1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+' | head -n 1)
-  kernelversemi=$(echo ${kernelverfull} | awk -F '-' '{ print $1 }')
+  kernelversemi=$(echo ${kernelverfull} | awk -F '-' '{$NF="" }1')
   rm -rf /usr/src/*.tar.gz
   kernelver=$(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d' | sed 's/\.tar\.xz//')
   tar xavf $(find /usr/src -type f -name "linux-source*.tar.xz" | sort | sed '$!d') --directory /usr/src
@@ -55,8 +56,9 @@ if [ "$1" == "kernel" ] || [ "$1" == "dracut" ] || [ "$1" == "update" ]; then
     echo "recovering latest timestamp=${timestamp}"
   fi
   uname -r | grep -q ${timestamp} > /dev/null
-  dracut --kver "${kernelversemi}-custom-${timestamp}" -m "nfs base dracut-systemd systemd-networkd systemd-initrd kernel-modules kernel-modules-extra kernel-network-modules" /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp} --force
-  if ! [ $? -eq 0 ]; then
+  cp -r /home/$ACTUAL_USER/build-pxe-resources/50nfsfix /usr/lib/dracut/modules.d/
+  dracut --kver "${kernelversemi}-custom-${timestamp}" -m "nfs base systemd dracut-systemd systemd-networkd systemd-initrd kernel-modules kernel-modules-extra kernel-network-modules nfsfix" /home/$ACTUAL_USER/build-pxe-resources/initramfs-nfs-${timestamp} --force
+if ! [ $? -eq 0 ]; then
     echo "Building custom initramfs failed!"
     exit 1
   else
@@ -82,7 +84,7 @@ if ! [ "$1" == "etc-update" ] && ! [ "$1" == "update" ]; then
   rsync -avz --delete /bin /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
   rsync -avz --delete /sbin /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
   rsync -avz --delete /lib /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
-  rsync -avz --delete /usr /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
+  rsync -avz --delete --exclude 'src' /usr /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
   rsync -avz --delete /home /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
   rsync -avz --delete /var /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
   rsync -avz --delete /lib64 /diskless/debian/ 2>&1 >> /home/$ACTUAL_USER/build-pxe-logs/folders-${timestamp}.log
