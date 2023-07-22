@@ -9,8 +9,7 @@ menu This will load a custom diskless Gentoo and Debian images directly through 
 item --gap Diskless Images
 item option_one ${space} Gentoo 20230328 - NFSv3
 item option_two ${space} Gentoo 20230328 - NFSv4.1
-item option_three ${space} Debian 11 - NFSv3
-item option_four ${space} Debian 11 - NFSv4.1
+item option_three ${space} Debian 12 - NFS4.1
 
 choose custom_choice || goto custom_exit
 echo ${cls}
@@ -40,19 +39,9 @@ boot || goto custom_exit
 
 :option_three
 
+imgfree
+kernel http://${next-server}:80/debian/vmlinuz initrd=initrd.magic ip=dhcp rd.shell init=/lib/systemd/systemd root=${131:string} ${cmdline}
 initrd http://${next-server}:80/debian/initramfs-nfs
-kernel http://${next-server}:80/debian/vmlinuz initrd=initramfs-nfs
-#imgargs vmlinuz nfsroot=${130:string} ip=auto init=/lib/systemd/systemd
-imgargs vmlinuz nfsroot=${131:string} ip=auto init=/usr/lib/systemd/systemd rd.shell rd.debug log_buf_len=1M
-imgstat
-boot || goto custom_exit
-
-:option_four
-
-initrd http://${next-server}:80/debian/initramfs-nfs
-kernel http://${next-server}:80/debian/vmlinuz initrd=initrd.magic
-imgargs vmlinuz nfsroot=${131:string} ip=auto init=/lib/systemd/systemd rd.shell log_buf_len=1M
-imgstat
 boot || goto custom_exit
 
 
