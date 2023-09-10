@@ -24,9 +24,10 @@ isset ${keymap} || set keymap dokeymap
 isset ${cmdline} || set cmdline vga=791
 
 :option_fog
-chain --replace tftp://172.20.0.2/ipxe.efi
+set next-server 172.20.0.2
+set filename ipxe.efi
+chain --replace tftp://${next-server}/${filename}
 exit
-
 
 :option_one
 
